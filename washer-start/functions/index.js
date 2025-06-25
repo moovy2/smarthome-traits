@@ -193,14 +193,14 @@ app.onQuery(async (body) => {
 });
 
 // TODO: Add SmartHome error handling
-// TODO: Add 2FA error handling
+// TODO: Add SUV error handling
 
 const updateDevice = async (execution, deviceId) => {
-  const {params, command} = execution; // TODO: Add 2FA
+  const {params, command} = execution; // TODO: Add SUV
   let state; let ref;
   switch (command) {
     case 'action.devices.commands.OnOff':
-      // TODO: Add 2FA challenge
+      // TODO: Add SUV challenge
       state = {on: params.on};
       ref = firebaseRef.child(deviceId).child('OnOff');
       break;

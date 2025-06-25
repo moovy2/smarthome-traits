@@ -242,15 +242,15 @@ class SmartHomeError extends Error {
   }
 }
 
-/** 2FA challenge required error */
+/** SUV challenge required error */
 class ChallengeNeededError extends SmartHomeError {
   /**
    * Create a new ChallengeNeededError
-   * @param {string} tfaType 2FA challenge type
+   * @param {string} suvType challenge type
    */
-  constructor(tfaType) {
-    super('challengeNeeded', tfaType);
-    this.tfaType = tfaType;
+  constructor(suvType) {
+    super('challengeNeeded',suvType);
+    this.suvType = suvType;
   }
 }
 
@@ -318,7 +318,7 @@ app.onExecute(async (body) => {
                     result.errorCode = error.errorCode;
                     if (error instanceof ChallengeNeededError) {
                       result.challengeNeeded = {
-                        type: error.tfaType,
+                        type: error.suvType,
                       };
                     }
                   }
