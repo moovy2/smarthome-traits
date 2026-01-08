@@ -23,7 +23,7 @@ const util = require('util');
 const admin = require('firebase-admin');
 // Initialize Firebase
 admin.initializeApp();
-const firebaseRef = admin.database().ref('/');
+const getFirebaseRef = () => admin.database().ref('/');
 // Initialize Homegraph
 const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/homegraph'],
@@ -171,7 +171,7 @@ app.onSync((body) => {
 });
 
 const queryFirebase = async (deviceId) => {
-  const snapshot = await firebaseRef.child(deviceId).once('value');
+  const snapshot = await getFirebaseRef().child(deviceId).once('value');
   const snapshotVal = snapshot.val();
   return {
     on: snapshotVal.OnOff.on,
@@ -242,15 +242,15 @@ class SmartHomeError extends Error {
   }
 }
 
-/** 2FA challenge required error */
+/** SUV challenge required error */
 class ChallengeNeededError extends SmartHomeError {
   /**
    * Create a new ChallengeNeededError
-   * @param {string} tfaType 2FA challenge type
+   * @param {string} suvType challenge type
    */
-  constructor(tfaType) {
-    super('challengeNeeded', tfaType);
-    this.tfaType = tfaType;
+  constructor(suvType) {
+    super('challengeNeeded',suvType);
+    this.suvType = suvType;
   }
 }
 
@@ -263,23 +263,23 @@ const updateDevice = async (execution, deviceId) => {
         throw new ChallengeNeededError('ackNeeded');
       }
       state = {on: params.on};
-      ref = firebaseRef.child(deviceId).child('OnOff');
+      ref = getFirebaseRef().child(deviceId).child('OnOff');
       break;
     case 'action.devices.commands.StartStop':
       state = {isRunning: params.start};
-      ref = firebaseRef.child(deviceId).child('StartStop');
+      ref = getFirebaseRef().child(deviceId).child('StartStop');
       break;
     case 'action.devices.commands.PauseUnpause':
       state = {isPaused: params.pause};
-      ref = firebaseRef.child(deviceId).child('StartStop');
+      ref = getFirebaseRef().child(deviceId).child('StartStop');
       break;
     case 'action.devices.commands.SetModes':
       state = {load: params.updateModeSettings.load};
-      ref = firebaseRef.child(deviceId).child('Modes');
+      ref = getFirebaseRef().child(deviceId).child('Modes');
       break;
     case 'action.devices.commands.SetToggles':
       state = {Turbo: params.updateToggleSettings.Turbo};
-      ref = firebaseRef.child(deviceId).child('Toggles');
+      ref = getFirebaseRef().child(deviceId).child('Toggles');
       break;
   }
 
@@ -318,7 +318,7 @@ app.onExecute(async (body) => {
                     result.errorCode = error.errorCode;
                     if (error instanceof ChallengeNeededError) {
                       result.challengeNeeded = {
-                        type: error.tfaType,
+                        type: error.suvType,
                       };
                     }
                   }
